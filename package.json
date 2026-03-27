@@ -1,0 +1,54 @@
+{
+  "name": "@bsh-git/cli",
+  "version": "0.0.1",
+  "description": "A friendly CLI for common Git workflows",
+  "type": "module",
+  "bin": {
+    "bsh-git": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "cli": "tsx src/cli.ts",
+    "cli:build": "npm run build && node dist/cli.js"
+  },
+  "keywords": [
+    "bsh",
+    "bsh solutions",
+    "git",
+    "cli",
+    "typescript"
+  ],
+  "author": "Bousalih Hamza <hamza.bousalih@yahoo.com>",
+  "homepage": "https://github.com/bsh-devsolutions/git.bsh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsh-devsolutions/git.bsh.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bousalih/bsh-git/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^14.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0"
+  }
+}

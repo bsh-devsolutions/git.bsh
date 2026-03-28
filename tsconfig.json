@@ -21,8 +21,17 @@
     "baseUrl": ".",
     "paths": {
       "@src/*": [
-        "src/*"
-      ]
+        "src/*",
+      ],
+      "@commands": [
+        "src/commands/index.ts",
+      ],
+      "@commands/*": [
+        "src/commands/*/cmd.ts",
+      ],
+      "@definition": [
+        "src/commands/definition.ts",
+      ],
     }
   },
   "include": [

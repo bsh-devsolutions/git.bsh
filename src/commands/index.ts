@@ -1,4 +1,4 @@
-import hello from './hello/cmd.js';
+import hello from '@commands/hello';
 
 export default [
     hello

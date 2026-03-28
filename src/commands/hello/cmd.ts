@@ -1,4 +1,4 @@
-import type { CommandDefinition } from '../cmd-definition.js';
+import type { CommandDefinition } from '@definition';
 import { runHello } from './impl.js';
 import type { HelloOptions } from './types.js';
 

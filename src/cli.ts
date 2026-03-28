@@ -4,6 +4,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import commands from '@commands';
+import { BshError } from '@errors';
+import { parseWithGlobalErrorHandling } from '@middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,19 +17,21 @@ const packageJson = JSON.parse(
 const program = new Command();
 
 program
-  .name('bsh-git')
+  .name('git.bsh')
   .description('Git workflows with a simpler interface')
   .version(packageJson.version);
 
 commands.forEach((cmd) => {
-  // define the subcommand
   const sub = program
     .command(cmd.name)
     .description(cmd.description)
     .summary(cmd.summary);
-  
-    // define the options
-    if (cmd.options) {
+
+  for (const a of cmd.aliases ?? []) {
+    sub.alias(a);
+  }
+
+  if (cmd.options) {
     for (const opt of cmd.options) {
       if (opt.defaultValue !== undefined) {
         sub.option(opt.flags, opt.description, opt.defaultValue);
@@ -37,8 +41,38 @@ commands.forEach((cmd) => {
     }
   }
 
-  // define the action
-  sub.action(cmd.action);
+  if (cmd.subcommands?.length) {
+    for (const sc of cmd.subcommands) {
+      const nested = sub.command(sc.name).description(sc.description);
+      for (const a of sc.aliases ?? []) {
+        nested.alias(a);
+      }
+      if (sc.options) {
+        for (const opt of sc.options) {
+          if (opt.defaultValue !== undefined) {
+            nested.option(opt.flags, opt.description, opt.defaultValue);
+          } else {
+            nested.option(opt.flags, opt.description);
+          }
+        }
+      }
+      nested.action((...actionArgs: unknown[]) => {
+        const options = actionArgs[actionArgs.length - 2] as Record<
+          string,
+          unknown
+        >;
+        const positionals = actionArgs.slice(0, -2) as string[];
+        sc.action(options as never, ...positionals);
+      });
+    }
+  } else if (cmd.action) {
+    sub.action(cmd.action);
+  } else {
+    throw new BshError(
+      500,
+      `Command "${cmd.name}" must define action or subcommands`,
+    );
+  }
 });
 
-program.parse();
+void parseWithGlobalErrorHandling(program);

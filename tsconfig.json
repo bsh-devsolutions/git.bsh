@@ -20,6 +20,9 @@
     "noEmit": false,
     "baseUrl": ".",
     "paths": {
+      "@__tests__/*": [
+        "__tests__/*"
+      ],
       "@src/*": [
         "src/*",
       ],
@@ -31,6 +34,15 @@
       ],
       "@definition": [
         "src/commands/definition.ts",
+      ],
+      "@logger": [
+        "src/lib/logger/index.ts",
+      ],
+      "@middleware": [
+        "src/lib/middleware/index.ts",
+      ],
+      "@errors": [
+        "src/lib/errors/index.ts",
       ],
     }
   },

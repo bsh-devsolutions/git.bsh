@@ -4,6 +4,8 @@ import { dirname, resolve as resolvePath } from 'path';
 import pino, { type Logger, type LoggerOptions } from 'pino';
 import pinoPretty from 'pino-pretty';
 
+import { BshError } from '@errors';
+
 function resolveLevel(): LoggerOptions['level'] {
   const raw =
     process.env.LOG_LEVEL ?? process.env.BSH_LOG_LEVEL ?? 'info';
@@ -32,6 +34,7 @@ function createPrettyDestination(
     ...PRETTY_BASE,
     colorize: opts.colorize,
     destination,
+    sync: true,
     ...(opts.mkdir ? { mkdir: true as const } : {}),
   });
 }
@@ -53,20 +56,40 @@ function createDestination() {
     ]);
   }
 
-  const consoleDest = pino.destination(1);
+  const consoleDest = pino.destination({ dest: 1, sync: true, minLength: 0 });
   if (!logFile) return consoleDest;
 
   mkdirSync(dirname(logFile), { recursive: true });
-  const fileDest = pino.destination(logFile);
+  const fileDest = pino.destination({
+    dest: logFile,
+    sync: true,
+    mkdir: true,
+    minLength: 0,
+  });
   return pino.multistream([
     { level: resolveLevel(), stream: consoleDest },
     { level: resolveLevel(), stream: fileDest },
   ]);
 }
 
+function serializeErr(err: Error): Record<string, unknown> {
+  const base = pino.stdSerializers.err(err) as Record<string, unknown>;
+  if (err instanceof BshError) {
+    return {
+      ...base,
+      code: err.code,
+      ...(err.context !== undefined && { context: err.context }),
+    };
+  }
+  return base;
+}
+
 const baseOptions: LoggerOptions = {
   level: resolveLevel(),
   name: 'bsh-git',
+  serializers: {
+    err: serializeErr,
+  },
   redact: {
     paths: [
       'password',
@@ -85,12 +108,12 @@ const baseOptions: LoggerOptions = {
   },
 };
 
-export function logger(name?: string): Logger {
+export function Logger(name?: string): Logger {
   const log = pino(baseOptions, createDestination());
   if (name) {
-    return log.child({ name: name });
+    return logger.child({ name: name });
   }
   return log;
 }
 
-export type { Logger, LoggerOptions } from 'pino';
+export const logger = Logger();

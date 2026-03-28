@@ -1,11 +1,11 @@
 import { execSync } from 'child_process';
 import { existsSync, readFileSync, unlinkSync } from 'fs';
 
-import { logger } from '@src/lib/logger';
+import { BshError } from '@errors';
+import { logger } from '@logger';
 
 import type { UninstallOptions } from './types.js';
 
-const log = logger('commit-msg');
 
 function looksLikeBshGitHook(contents: string): boolean {
   return contents.includes('commit validate');
@@ -18,7 +18,7 @@ function gitHooksDir(): string {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch {
-    throw new Error('Not a Git repository (or hooks path unavailable).');
+    throw new BshError(404, 'Not a Git repository (or hooks path unavailable).');
   }
 }
 
@@ -27,7 +27,7 @@ export function runUninstall(options: UninstallOptions): void {
   const hookPath = `${hooksDir}/commit-msg`;
 
   if (!existsSync(hookPath)) {
-    log.info(`No commit-msg hook at ${hookPath}.`);
+    logger.info(`No commit-msg hook at ${hookPath}.`);
     return;
   }
 
@@ -42,13 +42,13 @@ export function runUninstall(options: UninstallOptions): void {
       typeof (e as { code: unknown }).code === 'string'
         ? (e as { code: string }).code
         : '';
-    log.error(`Could not read ${hookPath}${code ? ` (${code})` : ''}.`);
+    logger.error(`Could not read ${hookPath}${code ? ` (${code})` : ''}.`);
     process.exitCode = 1;
     return;
   }
 
   if (!looksLikeBshGitHook(contents) && !options.force) {
-    log.error(
+    logger.error(
       `commit-msg hook at ${hookPath} does not look like the one installed by this tool. Use --force to remove it anyway.`,
     );
     process.exitCode = 1;
@@ -56,5 +56,5 @@ export function runUninstall(options: UninstallOptions): void {
   }
 
   unlinkSync(hookPath);
-  log.info(`Removed commit-msg hook at ${hookPath}`);
+  logger.info(`Removed commit-msg hook at ${hookPath}`);
 }

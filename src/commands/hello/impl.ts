@@ -1,12 +1,11 @@
-import { logger } from '@src/lib/logger';
+import { logger } from '@logger';
 
 import type { HelloOptions } from './types.js';
 
-const log = logger('hello');
 
 export function runHello(options: HelloOptions): void {
-  log.debug(`command invoked: ${options.name}`);
-  log.info(`emitting greeting: ${options.name}`);
-  log.warn(`emitting warning: ${options.name}`);
-  log.error(`emitting error: ${options.name}`);
+  logger.debug(`command invoked: ${options.name}`);
+  logger.info(`emitting greeting: ${options.name}`);
+  logger.warn(`emitting warning: ${options.name}`);
+  logger.error(`emitting error: ${options.name}`);
 }

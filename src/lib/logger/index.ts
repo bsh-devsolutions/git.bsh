@@ -4,6 +4,8 @@ import { dirname, resolve as resolvePath } from 'path';
 import pino, { type Logger, type LoggerOptions } from 'pino';
 import pinoPretty from 'pino-pretty';
 
+import { BshError } from '@errors';
+
 function resolveLevel(): LoggerOptions['level'] {
   const raw =
     process.env.LOG_LEVEL ?? process.env.BSH_LOG_LEVEL ?? 'info';
@@ -70,9 +72,24 @@ function createDestination() {
   ]);
 }
 
+function serializeErr(err: Error): Record<string, unknown> {
+  const base = pino.stdSerializers.err(err) as Record<string, unknown>;
+  if (err instanceof BshError) {
+    return {
+      ...base,
+      code: err.code,
+      ...(err.context !== undefined && { context: err.context }),
+    };
+  }
+  return base;
+}
+
 const baseOptions: LoggerOptions = {
   level: resolveLevel(),
   name: 'bsh-git',
+  serializers: {
+    err: serializeErr,
+  },
   redact: {
     paths: [
       'password',
@@ -91,12 +108,12 @@ const baseOptions: LoggerOptions = {
   },
 };
 
-export function logger(name?: string): Logger {
+export function Logger(name?: string): Logger {
   const log = pino(baseOptions, createDestination());
   if (name) {
-    return log.child({ name: name });
+    return logger.child({ name: name });
   }
   return log;
 }
 
-export type { Logger, LoggerOptions } from 'pino';
+export const logger = Logger();

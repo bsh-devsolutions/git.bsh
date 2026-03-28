@@ -1,11 +1,10 @@
 import { execSync } from 'child_process';
 import { chmodSync, existsSync, realpathSync, writeFileSync } from 'fs';
 
-import { logger } from '@src/lib/logger';
+import { BshError } from '@errors';
+import { logger } from '@logger';
 
 import type { InstallOptions } from './types.js';
-
-const log = logger('commit-msg');
 
 function gitHooksDir(): string {
   try {
@@ -14,7 +13,7 @@ function gitHooksDir(): string {
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch {
-    throw new Error('Not a Git repository (or hooks path unavailable).');
+    throw new BshError(404, 'Not a Git repository (or hooks path unavailable).');
   }
 }
 
@@ -39,7 +38,7 @@ export function runInstall(options: InstallOptions): void {
   const hookPath = `${hooksDir}/commit-msg`;
 
   if (existsSync(hookPath) && !options.force) {
-    log.error(
+    logger.error(
       `commit-msg hook already exists at ${hookPath}. Use --force to replace it.`,
     );
     process.exitCode = 1;
@@ -48,5 +47,5 @@ export function runInstall(options: InstallOptions): void {
 
   writeFileSync(hookPath, hookScript(), { encoding: 'utf8' });
   chmodSync(hookPath, 0o755);
-  log.info(`Installed commit-msg hook at ${hookPath}`);
+  logger.info(`Installed commit-msg hook at ${hookPath}`);
 }

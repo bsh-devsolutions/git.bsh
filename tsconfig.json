@@ -35,6 +35,15 @@
       "@definition": [
         "src/commands/definition.ts",
       ],
+      "@logger": [
+        "src/lib/logger/index.ts",
+      ],
+      "@middleware": [
+        "src/lib/middleware/index.ts",
+      ],
+      "@errors": [
+        "src/lib/errors/index.ts",
+      ],
     }
   },
   "include": [

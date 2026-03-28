@@ -4,6 +4,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import commands from '@commands';
+import { BshError } from '@errors';
+import { parseWithGlobalErrorHandling } from '@middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -66,8 +68,11 @@ commands.forEach((cmd) => {
   } else if (cmd.action) {
     sub.action(cmd.action);
   } else {
-    throw new Error(`Command "${cmd.name}" must define action or subcommands`);
+    throw new BshError(
+      500,
+      `Command "${cmd.name}" must define action or subcommands`,
+    );
   }
 });
 
-program.parse();
+void parseWithGlobalErrorHandling(program);

@@ -1,7 +1,6 @@
-import { logger } from '@src/lib/logger';
+import { logger } from '@logger';
 
-const log = logger('commit');
 
 export function runValidate(): void {
-  log.info('validate command invoked');
+  logger.info('validate command invoked');
 }

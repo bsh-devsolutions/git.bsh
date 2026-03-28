@@ -1,5 +1,6 @@
+import type { CommandDefinition } from '@definition';
 import hello from '@commands/hello';
+import commitMsg from '@src/commands/commit/cmd';
 
-export default [
-    hello
-];
+const commands: CommandDefinition[] = [hello, commitMsg];
+export default commands;

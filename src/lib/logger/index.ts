@@ -32,6 +32,7 @@ function createPrettyDestination(
     ...PRETTY_BASE,
     colorize: opts.colorize,
     destination,
+    sync: true,
     ...(opts.mkdir ? { mkdir: true as const } : {}),
   });
 }
@@ -53,11 +54,16 @@ function createDestination() {
     ]);
   }
 
-  const consoleDest = pino.destination(1);
+  const consoleDest = pino.destination({ dest: 1, sync: true, minLength: 0 });
   if (!logFile) return consoleDest;
 
   mkdirSync(dirname(logFile), { recursive: true });
-  const fileDest = pino.destination(logFile);
+  const fileDest = pino.destination({
+    dest: logFile,
+    sync: true,
+    mkdir: true,
+    minLength: 0,
+  });
   return pino.multistream([
     { level: resolveLevel(), stream: consoleDest },
     { level: resolveLevel(), stream: fileDest },

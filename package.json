@@ -16,8 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "cli": "tsx src/cli.ts",
-    "cli:debug": "LOG_LEVEL=debug tsx src/cli.ts",
+    "cli": "ENV=local tsx src/cli.ts",
+    "cli:debug": "LOG_LEVEL=debug ENV=local tsx src/cli.ts",
     "cli:build": "npm run build && node dist/cli.js"
   },
   "keywords": [

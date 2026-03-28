@@ -20,6 +20,9 @@
     "noEmit": false,
     "baseUrl": ".",
     "paths": {
+      "@__tests__/*": [
+        "__tests__/*"
+      ],
       "@src/*": [
         "src/*",
       ],

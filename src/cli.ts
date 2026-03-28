@@ -15,7 +15,7 @@ const packageJson = JSON.parse(
 const program = new Command();
 
 program
-  .name('bsh-git')
+  .name('git.bsh')
   .description('Git workflows with a simpler interface')
   .version(packageJson.version);
 

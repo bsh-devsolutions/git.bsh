@@ -5,6 +5,7 @@ import { BshError } from '@errors';
 import { logger } from '@logger';
 
 import type { InstallOptions } from './types.js';
+import { consts } from '../const.js';
 
 function gitHooksDir(): string {
   try {
@@ -35,11 +36,11 @@ ${invoker} commit validate "$1"
 
 export function runInstall(options: InstallOptions): void {
   const hooksDir = gitHooksDir();
-  const hookPath = `${hooksDir}/commit-msg`;
+  const hookPath = `${hooksDir}/${consts.commit.messageHook}`;
 
   if (existsSync(hookPath) && !options.force) {
     logger.error(
-      `commit-msg hook already exists at ${hookPath}. Use --force to replace it.`,
+      `${consts.commit.messageHook} hook already exists at ${hookPath}. Use --force to replace it.`,
     );
     process.exitCode = 1;
     return;
@@ -47,5 +48,5 @@ export function runInstall(options: InstallOptions): void {
 
   writeFileSync(hookPath, hookScript(), { encoding: 'utf8' });
   chmodSync(hookPath, 0o755);
-  logger.info(`Installed commit-msg hook at ${hookPath}`);
+  logger.info(`Installed ${consts.commit.messageHook} hook at ${hookPath}`);
 }

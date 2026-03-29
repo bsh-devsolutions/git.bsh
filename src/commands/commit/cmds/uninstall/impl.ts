@@ -5,6 +5,7 @@ import { BshError } from '@errors';
 import { logger } from '@logger';
 
 import type { UninstallOptions } from './types.js';
+import { consts } from '../const.js';
 
 
 function looksLikeBshGitHook(contents: string): boolean {
@@ -24,10 +25,10 @@ function gitHooksDir(): string {
 
 export function runUninstall(options: UninstallOptions): void {
   const hooksDir = gitHooksDir();
-  const hookPath = `${hooksDir}/commit-msg`;
+  const hookPath = `${hooksDir}/${consts.commit.messageHook}`;
 
   if (!existsSync(hookPath)) {
-    logger.info(`No commit-msg hook at ${hookPath}.`);
+    logger.info(`No ${consts.commit.messageHook} hook at ${hookPath}.`);
     return;
   }
 
@@ -49,12 +50,12 @@ export function runUninstall(options: UninstallOptions): void {
 
   if (!looksLikeBshGitHook(contents) && !options.force) {
     logger.error(
-      `commit-msg hook at ${hookPath} does not look like the one installed by this tool. Use --force to remove it anyway.`,
+      `${consts.commit.messageHook} hook at ${hookPath} does not look like the one installed by this tool. Use --force to remove it anyway.`,
     );
     process.exitCode = 1;
     return;
   }
 
   unlinkSync(hookPath);
-  logger.info(`Removed commit-msg hook at ${hookPath}`);
+  logger.info(`Removed ${consts.commit.messageHook} hook at ${hookPath}`);
 }

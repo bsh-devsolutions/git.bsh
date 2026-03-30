@@ -1,87 +1,61 @@
-import { AttachedCommandOptions, CommandOption, PositionalArg } from "@src/commands/definition";
-import { Command, Option } from "commander";
+import { Command } from "commander";
+import { applyCommandMeta, applyOptions, applyPositional, nameAndArgs } from "./utils";
+import type { CommandDefinition } from "@definition";
+import { BshError } from "@errors";
 
-export function nameAndArgs(name: string, argumentSyntax?: string): string {
-    const extra = argumentSyntax?.trim();
-    return extra ? `${name} ${extra}` : name;
-}
+export default (program: Command, commands: CommandDefinition[]) => {
+    commands.forEach((cmd) => {
+        const sub = program
+            .command(nameAndArgs(cmd.name, cmd.argumentSyntax), {
+                hidden: cmd.hidden,
+                isDefault: cmd.isDefault,
+            })
+            .description(cmd.description)
+            .summary(cmd.summary ?? '');
 
-export function applyPositional(cmd: Command, positional?: PositionalArg[]): void {
-    if (!positional?.length) return;
-    for (const p of positional) {
-        if (p.description !== undefined && p.defaultValue !== undefined) {
-            cmd.argument(p.spec, p.description, p.defaultValue);
-        } else if (p.description !== undefined) {
-            cmd.argument(p.spec, p.description);
-        } else if (p.defaultValue !== undefined) {
-            cmd.argument(p.spec, '', p.defaultValue);
+        for (const a of cmd.aliases ?? []) sub.alias(a);
+
+        if (cmd.positional?.length) applyPositional(sub, cmd.positional);
+        else if (cmd.argumentsPattern) sub.arguments(cmd.argumentsPattern);
+
+        applyCommandMeta(sub, cmd);
+        applyOptions(sub, cmd.options);
+
+        if (cmd.subcommands?.length) {
+            for (const sc of cmd.subcommands) {
+                const nested = sub
+                    .command(nameAndArgs(sc.name, sc.argumentSyntax), {
+                        hidden: sc.hidden,
+                        isDefault: sc.isDefault,
+                    })
+                    .description(sc.description);
+
+                if (sc.summary) nested.summary(sc.summary);
+
+                for (const a of sc.aliases ?? []) nested.alias(a);
+
+                if (sc.positional?.length) applyPositional(nested, sc.positional);
+                else if (sc.argumentsPattern) nested.arguments(sc.argumentsPattern);
+
+                applyCommandMeta(nested, sc);
+                applyOptions(nested, sc.options);
+
+                nested.action((...actionArgs: unknown[]) => {
+                    const options = actionArgs[actionArgs.length - 2] as Record<
+                        string,
+                        unknown
+                    >;
+                    const positionals = actionArgs.slice(0, -2) as string[];
+                    sc.action(options as never, ...positionals);
+                });
+            }
+        } else if (cmd.action) {
+            sub.action(cmd.action);
         } else {
-            cmd.argument(p.spec);
+            throw new BshError(
+                500,
+                `Command "${cmd.name}" must define action or subcommands ${cmd.name}`,
+            );
         }
-    }
-}
-
-export function applyOption(cmd: Command, opt: CommandOption): void {
-    const needsCustomOption =
-        (opt.choices?.length ?? 0) > 0 ||
-        opt.env != null ||
-        opt.hideHelp === true ||
-        opt.helpGroup != null ||
-        opt.preset !== undefined;
-
-    if (needsCustomOption) {
-        const o = new Option(opt.flags, opt.description);
-        if (opt.defaultValue !== undefined) {
-            o.default(opt.defaultValue);
-        }
-        if (opt.choices?.length) {
-            o.choices(opt.choices);
-        }
-        if (opt.env) {
-            o.env(opt.env);
-        }
-        if (opt.hideHelp) {
-            o.hideHelp(true);
-        }
-        if (opt.helpGroup) {
-            o.helpGroup(opt.helpGroup);
-        }
-        if (opt.preset !== undefined) {
-            o.preset(opt.preset);
-        }
-        if (opt.mandatory) {
-            o.makeOptionMandatory(true);
-        }
-        cmd.addOption(o);
-        return;
-    }
-
-    if (opt.mandatory) {
-        if (opt.defaultValue !== undefined) {
-            cmd.requiredOption(opt.flags, opt.description, opt.defaultValue);
-        } else {
-            cmd.requiredOption(opt.flags, opt.description);
-        }
-        return;
-    }
-
-    if (opt.defaultValue !== undefined) {
-        cmd.option(opt.flags, opt.description, opt.defaultValue);
-    } else {
-        cmd.option(opt.flags, opt.description);
-    }
-}
-
-export function applyOptions(cmd: Command, options?: CommandOption[]): void {
-    if (!options) return;
-    for (const opt of options) {
-        applyOption(cmd, opt);
-    }
-}
-
-export function applyCommandMeta(cmd: Command, def: AttachedCommandOptions): void {
-    if (def.usage != null) cmd.usage(def.usage);
-    if (def.helpGroup != null) cmd.helpGroup(def.helpGroup);
-    if (def.allowUnknownOptions === true) cmd.allowUnknownOption(true);
-    if (def.allowExcessArguments !== undefined) cmd.allowExcessArguments(def.allowExcessArguments);
+    });
 }

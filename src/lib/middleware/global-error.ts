@@ -10,7 +10,7 @@ function logMessageFor(err: unknown): string {
   return 'command failed';
 }
 
-export async function parseWithGlobalErrorHandling(
+export async function errorHandlingMiddleware(
   program: Command,
   argv: string[] = process.argv,
 ): Promise<void> {

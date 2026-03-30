@@ -23,7 +23,7 @@ function resolveHookInvoker(): string {
   if (env == 'local') {
     return 'npm run cli --';
   }
-  return 'npx @bshsolutions/git.bsh';
+  return 'npx @bshsolutions/git';
 }
 
 function hookScript(): string {

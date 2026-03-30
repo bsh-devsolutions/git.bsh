@@ -1,10 +1,10 @@
 {
-  "name": "@bshsolutions/git.bsh",
+  "name": "@bshsolutions/git",
   "version": "0.0.1",
   "description": "A friendly CLI for common Git workflows",
   "type": "module",
   "bin": {
-    "git.bsh": "./dist/cli.js"
+    "git": "./dist/cli.js"
   },
   "files": [
     "dist"

@@ -35,6 +35,9 @@
       "@definition": [
         "src/commands/definition.ts",
       ],
+      "@lib/*": [
+        "src/lib/*",
+      ],
       "@logger": [
         "src/lib/logger/index.ts",
       ],

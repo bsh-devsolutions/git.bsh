@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { initConfig } from '@config';
 import middleware from '@lib/middleware';
 import commands from '@commands';
 import cli from '@lib/cli';
@@ -20,5 +21,8 @@ program
   .description('Git workflows with a simpler interface')
   .version(packageJson.version);
 
-cli(program, commands);
-void middleware(program);
+(async () => {
+  await initConfig();
+  cli(program, commands);
+  await middleware(program);
+})();

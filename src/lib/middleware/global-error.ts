@@ -1,7 +1,7 @@
 import { CommanderError, type Command } from 'commander';
 
-import { BshError } from '@errors';
-import { logger } from '@logger';
+import { BshError } from '@lib/errors';
+import { logger } from '@lib/logger';
 
 
 function logMessageFor(err: unknown): string {

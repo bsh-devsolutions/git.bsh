@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import middleware from '@middleware';
+import middleware from '@lib/middleware';
 import commands from '@commands';
 import cli from '@lib/cli';
 

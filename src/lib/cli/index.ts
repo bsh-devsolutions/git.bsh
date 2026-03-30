@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { applyCommandMeta, applyOptions, applyPositional, nameAndArgs } from "./utils";
 import type { CommandDefinition } from "@definition";
-import { BshError } from "@errors";
+import { BshError } from "@lib/errors";
 
 export default (program: Command, commands: CommandDefinition[]) => {
     commands.forEach((cmd) => {

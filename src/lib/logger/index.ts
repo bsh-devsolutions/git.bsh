@@ -4,7 +4,7 @@ import { dirname, resolve as resolvePath } from 'path';
 import pino, { type Logger, type LoggerOptions } from 'pino';
 import pinoPretty from 'pino-pretty';
 
-import { BshError } from '@errors';
+import { BshError } from '@lib/errors';
 
 function resolveLevel(): LoggerOptions['level'] {
   const raw =

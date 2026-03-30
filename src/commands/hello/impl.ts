@@ -1,4 +1,4 @@
-import { logger } from '@logger';
+import { logger } from '@lib/logger';
 
 import type { HelloOptions } from './types.js';
 

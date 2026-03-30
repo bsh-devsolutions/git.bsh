@@ -4,19 +4,17 @@ import { dirname, resolve as resolvePath } from 'path';
 import pino, { type Logger, type LoggerOptions } from 'pino';
 import pinoPretty from 'pino-pretty';
 
+import { getConfig } from '@config';
+
 import { BshError } from '@lib/errors';
 
-function resolveLevel(): LoggerOptions['level'] {
-  const raw =
-    process.env.LOG_LEVEL ?? process.env.BSH_LOG_LEVEL ?? 'info';
-  const normalized = raw.toLowerCase() as NonNullable<LoggerOptions['level']>;
-  return normalized;
-}
+const loggerConfig = () => getConfig().logger
+const level = (): LoggerOptions['level'] => loggerConfig().level
 
 function resolveLogFilePath(): string | undefined {
-  const raw = process.env.BSH_LOG_FILE ?? process.env.LOG_FILE ?? 'logs/bsh-git.log';
-  if (!raw?.trim()) return undefined;
-  return resolvePath(raw.trim());
+  const { file } = loggerConfig();
+  if (!file.enable || !file.path.trim()) return undefined;
+  return resolvePath(file.path.trim());
 }
 
 const PRETTY_BASE = {
@@ -51,8 +49,8 @@ function createDestination() {
       mkdir: true,
     });
     return pino.multistream([
-      { level: resolveLevel(), stream: consoleDest },
-      { level: resolveLevel(), stream: fileDest },
+      { level: level(), stream: consoleDest },
+      { level: level(), stream: fileDest },
     ]);
   }
 
@@ -67,8 +65,8 @@ function createDestination() {
     minLength: 0,
   });
   return pino.multistream([
-    { level: resolveLevel(), stream: consoleDest },
-    { level: resolveLevel(), stream: fileDest },
+    { level: level(), stream: consoleDest },
+    { level: level(), stream: fileDest },
   ]);
 }
 
@@ -84,36 +82,50 @@ function serializeErr(err: Error): Record<string, unknown> {
   return base;
 }
 
-const baseOptions: LoggerOptions = {
-  level: resolveLevel(),
-  name: 'bsh-git',
-  serializers: {
-    err: serializeErr,
-  },
-  redact: {
-    paths: [
-      'password',
-      'token',
-      'accessToken',
-      'refreshToken',
-      'authorization',
-      'cookie',
-      'cookies',
-      'set-cookie',
-      '*.password',
-      '*.token',
-      '*.authorization',
-    ],
-    censor: '[redacted]',
-  },
-};
-
-export function Logger(name?: string): Logger {
-  const log = pino(baseOptions, createDestination());
-  if (name) {
-    return logger.child({ name: name });
-  }
-  return log;
+function buildBaseOptions(): LoggerOptions {
+  return {
+    level: level(),
+    name: 'bsh-git',
+    serializers: {
+      err: serializeErr,
+    },
+    redact: {
+      paths: [
+        'password',
+        'token',
+        'accessToken',
+        'refreshToken',
+        'authorization',
+        'cookie',
+        'cookies',
+        'set-cookie',
+        '*.password',
+        '*.token',
+        '*.authorization',
+      ],
+      censor: '[redacted]',
+    },
+  };
 }
 
-export const logger = Logger();
+let rootLogger: Logger | undefined;
+
+function getRootLogger(): Logger {
+  if (!rootLogger) {
+    rootLogger = pino(buildBaseOptions(), createDestination());
+  }
+  return rootLogger;
+}
+
+export function Logger(name?: string): Logger {
+  const root = getRootLogger();
+  return name ? root.child({ name }) : root;
+}
+
+export const logger = new Proxy({} as Logger, {
+  get(_target, prop) {
+    const inst = getRootLogger();
+    const value = (inst as unknown as Record<string | symbol, unknown>)[prop];
+    return typeof value === 'function' ? value.bind(inst) : value;
+  },
+});

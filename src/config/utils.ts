@@ -11,6 +11,9 @@ export const defaultConfig: Config = {
       path: 'logs/bsh-git.log',
     },
   },
+  commit: {
+    messageFormat: '{type} {scope}: {message}',
+  },
 };
 
 export async function loadFromFile(): Promise<Config> {
@@ -24,34 +27,45 @@ export async function loadFromFile(): Promise<Config> {
   }
 }
 
+function deepMerge(target: Config, source: unknown): Config {
+  if (typeof source !== 'object' || source === null) return target;
+  if (typeof target !== 'object' || target === null) return target;
+
+  const result: any = Array.isArray(target) ? [...target] : { ...target };
+
+  for (const key of Object.keys(target)) {
+    if (
+      Object.prototype.hasOwnProperty.call(source, key) &&
+      typeof key === 'string'
+    ) {
+      const sourceVal = (source as Record<string, unknown>)[key];
+      const targetVal = (target as any)[key];
+
+      if (Array.isArray(targetVal) && Array.isArray(sourceVal)) {
+        result[key] = [...sourceVal];
+      } else if (
+        typeof targetVal === 'object' && targetVal !== null &&
+        typeof sourceVal === 'object' && sourceVal !== null
+      ) {
+        result[key] = deepMerge(targetVal, sourceVal);
+      } else {
+        if (typeof sourceVal === typeof targetVal || Array.isArray(sourceVal)) {
+          result[key] = sourceVal;
+        } else {
+          result[key] = sourceVal !== undefined && sourceVal !== null ? sourceVal : targetVal;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 export function mergeConfig(raw: unknown): Config {
   if (!raw || typeof raw !== 'object') {
     return structuredClone(defaultConfig);
   }
-  const o = raw as Record<string, unknown>;
-  const logger =
-    o.logger && typeof o.logger === 'object'
-      ? (o.logger as Record<string, unknown>)
-      : {};
-  const file =
-    logger.file && typeof logger.file === 'object'
-      ? (logger.file as Record<string, unknown>)
-      : {};
-  return {
-    logger: {
-      level: logger.level === 'debug' ? 'debug' : 'info',
-      file: {
-        enable:
-          typeof file.enable === 'boolean'
-            ? file.enable
-            : defaultConfig.logger.file.enable,
-        path:
-          typeof file.path === 'string'
-            ? file.path
-            : defaultConfig.logger.file.path,
-      },
-    },
-  };
+  return deepMerge(defaultConfig, raw);
 }
 
 export function getNodeErrno(err: unknown): NodeJS.ErrnoException['code'] {

@@ -1,10 +1,10 @@
 import type { Config } from './type';   
-import { loadFromFile } from './utils';
+import { defaultConfig, loadFromFile } from './utils';
 
 let instance: Config | undefined;
 let initPromise: Promise<Config> | undefined;
 
-export async function initConfig(): Promise<Config> {
+export async function loadConfig(): Promise<Config> {
   if (instance) return instance;
   if (!initPromise) {
     initPromise = loadFromFile().then((c) => {
@@ -16,9 +16,7 @@ export async function initConfig(): Promise<Config> {
 }
 
 export function getConfig(): Config {
-  if (!instance) {
-    throw new Error('Config not initialized; call initConfig() before use');
-  }
+  if (!instance) instance = defaultConfig;
   return instance;
 }
 

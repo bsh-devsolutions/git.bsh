@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { initConfig } from '@config';
+import { loadConfig } from '@config';
 import middleware from '@lib/middleware';
 import commands from '@commands';
 import cli from '@lib/cli';
@@ -22,7 +22,7 @@ program
   .version(packageJson.version);
 
 (async () => {
-  await initConfig();
+  await loadConfig();
   cli(program, commands);
   await middleware(program);
 })();

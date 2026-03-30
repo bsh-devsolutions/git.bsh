@@ -1,8 +1,8 @@
 import { execSync } from 'child_process';
 import { chmodSync, existsSync, realpathSync, writeFileSync } from 'fs';
 
-import { BshError } from '@errors';
-import { logger } from '@logger';
+import { BshError } from '@lib/errors';
+import { logger } from '@lib/logger';
 
 import type { InstallOptions } from './types.js';
 import { consts } from '../const.js';

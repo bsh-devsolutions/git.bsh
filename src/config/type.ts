@@ -5,5 +5,8 @@ export type Config = {
             enable: boolean,
             path: string,
         }
+    },
+    commit: {
+        messageFormat: string
     }
 }

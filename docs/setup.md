@@ -33,7 +33,6 @@ Run the CLI with `npx` (no global install):
 
 ```sh
 npx @bshsolutions/git --help
-npx @bshsolutions/git hello
 ```
 
 ### Debug logging

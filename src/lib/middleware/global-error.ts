@@ -1,7 +1,7 @@
 import { CommanderError, type Command } from 'commander';
 
-import { BshError } from '@errors';
-import { logger } from '@logger';
+import { BshError } from '@lib/errors';
+import { logger } from '@lib/logger';
 
 
 function logMessageFor(err: unknown): string {
@@ -10,7 +10,7 @@ function logMessageFor(err: unknown): string {
   return 'command failed';
 }
 
-export async function parseWithGlobalErrorHandling(
+export async function errorHandlingMiddleware(
   program: Command,
   argv: string[] = process.argv,
 ): Promise<void> {

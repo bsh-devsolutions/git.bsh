@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import commands from '@commands';
 import { BshError } from '@errors';
 import { parseWithGlobalErrorHandling } from '@middleware';
+import { nameAndArgs, applyPositional, applyCommandMeta, applyOptions } from '@lib/cli';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,39 +24,40 @@ program
 
 commands.forEach((cmd) => {
   const sub = program
-    .command(cmd.name)
+    .command(nameAndArgs(cmd.name, cmd.argumentSyntax), {
+      hidden: cmd.hidden,
+      isDefault: cmd.isDefault,
+    })
     .description(cmd.description)
-    .summary(cmd.summary);
+    .summary(cmd.summary ?? '');
 
-  for (const a of cmd.aliases ?? []) {
-    sub.alias(a);
-  }
+  for (const a of cmd.aliases ?? []) sub.alias(a);
 
-  if (cmd.options) {
-    for (const opt of cmd.options) {
-      if (opt.defaultValue !== undefined) {
-        sub.option(opt.flags, opt.description, opt.defaultValue);
-      } else {
-        sub.option(opt.flags, opt.description);
-      }
-    }
-  }
+  if (cmd.positional?.length) applyPositional(sub, cmd.positional);
+  else if (cmd.argumentsPattern) sub.arguments(cmd.argumentsPattern);
+
+  applyCommandMeta(sub, cmd);
+  applyOptions(sub, cmd.options);
 
   if (cmd.subcommands?.length) {
     for (const sc of cmd.subcommands) {
-      const nested = sub.command(sc.name).description(sc.description);
-      for (const a of sc.aliases ?? []) {
-        nested.alias(a);
-      }
-      if (sc.options) {
-        for (const opt of sc.options) {
-          if (opt.defaultValue !== undefined) {
-            nested.option(opt.flags, opt.description, opt.defaultValue);
-          } else {
-            nested.option(opt.flags, opt.description);
-          }
-        }
-      }
+      const nested = sub
+        .command(nameAndArgs(sc.name, sc.argumentSyntax), {
+          hidden: sc.hidden,
+          isDefault: sc.isDefault,
+        })
+        .description(sc.description);
+
+      if (sc.summary) nested.summary(sc.summary);
+
+      for (const a of sc.aliases ?? []) nested.alias(a);
+
+      if (sc.positional?.length) applyPositional(nested, sc.positional);
+      else if (sc.argumentsPattern) nested.arguments(sc.argumentsPattern);
+
+      applyCommandMeta(nested, sc);
+      applyOptions(nested, sc.options);
+
       nested.action((...actionArgs: unknown[]) => {
         const options = actionArgs[actionArgs.length - 2] as Record<
           string,
@@ -70,7 +72,7 @@ commands.forEach((cmd) => {
   } else {
     throw new BshError(
       500,
-      `Command "${cmd.name}" must define action or subcommands`,
+      `Command "${cmd.name}" must define action or subcommands ${cmd.name}`,
     );
   }
 });

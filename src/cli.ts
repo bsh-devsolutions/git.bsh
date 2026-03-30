@@ -17,7 +17,7 @@ const packageJson = JSON.parse(
 const program = new Command();
 
 program
-  .name('git')
+  .name(`npx ${packageJson.name}`)
   .description('Git workflows with a simpler interface')
   .version(packageJson.version);
 

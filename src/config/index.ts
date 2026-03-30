@@ -20,4 +20,4 @@ export function getConfig(): Config {
   return instance;
 }
 
-export { Config };
+export { Config, defaultConfig };

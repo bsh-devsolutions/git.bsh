@@ -6,10 +6,7 @@ The CLI binary is **`git`** (npm package **`@bshsolutions/git`**). Examples use 
 Commands
 ├── Built-in help
 ├── Global usage
-├── hello
-│   ├── Usage
-│   ├── Options
-│   └── Examples
+├── init
 └── commit
     └── (see commit.md for the subcommand tree)
 ```
@@ -17,7 +14,7 @@ Commands
 ```text
 @bshsolutions/git (conceptual)
 ├── [command] [options]     (root)
-├── hello [--name]
+├── init
 └── commit
     ├── install [--force]
     ├── uninstall [--force]
@@ -42,28 +39,17 @@ npx @bshsolutions/git [command] [options]
 
 ---
 
-## hello
+## init
 
-Print a greeting—handy for smoke-testing that Node, `npx`, and the package resolve correctly.
+Creates **`.github/bsh.json`** with the CLI’s default configuration when that file is missing. The directory is created if needed. If the file already exists, the command does nothing (it does not overwrite).
 
 ### Usage
 
 ```text
-npx @bshsolutions/git hello [options]
+npx @bshsolutions/git init
 ```
 
-### Options
-
-| Option | Description |
-| --- | --- |
-| `-n, --name <name>` | Who to greet (default: `World`) |
-
-### Examples
-
-```sh
-npx @bshsolutions/git hello
-npx @bshsolutions/git hello --name Alice
-```
+The written file uses the same default shape the CLI uses when no config file is present (commit message format and logger settings).
 
 ---
 

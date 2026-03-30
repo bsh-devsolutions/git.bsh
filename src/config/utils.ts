@@ -4,15 +4,15 @@ import { consts } from './consts';
 import type { Config } from './type';
 
 export const defaultConfig: Config = {
+  commit: {
+    messageFormat: '{type} {scope}: {message}',
+  },
   logger: {
     level: 'info',
     file: {
       enable: false,
       path: 'logs/bsh-git.log',
     },
-  },
-  commit: {
-    messageFormat: '{type} {scope}: {message}',
   },
 };
 

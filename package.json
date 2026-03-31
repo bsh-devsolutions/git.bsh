@@ -4,7 +4,7 @@
   "description": "A friendly CLI for common Git workflows",
   "type": "module",
   "bin": {
-    "git": "./dist/cli.js"
+    "git-bsh": "./dist/cli.js"
   },
   "files": [
     "dist"

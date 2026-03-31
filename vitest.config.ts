@@ -3,6 +3,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  server: {
+    host: '127.0.0.1',
+  },
   test: {
     include: ['__tests__/**/*.test.ts'],
     globals: true,

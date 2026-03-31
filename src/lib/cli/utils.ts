@@ -1,4 +1,4 @@
-import { AttachedCommandOptions, CommandOption, PositionalArg } from "@src/commands/definition";
+import type { AttachedCommandOptions, CommandOption, PositionalArg } from "@definition";
 import { Command, Option } from "commander";
 
 export const nameAndArgs = (name: string, argumentSyntax?: string): string => {

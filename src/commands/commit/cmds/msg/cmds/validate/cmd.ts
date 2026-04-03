@@ -1,12 +1,11 @@
 import type { CommandDefinition } from '@definition';
 
-import { runValidate } from './impl.js';
+import run from './impl.js';
 
 export default {
   name: 'validate',
   aliases: ['v'],
   description: 'Validate a commit message',
-  action: (_options) => {
-    runValidate();
-  },
+  argumentSyntax: '[message-or-file]',
+  action: (_options, input) => run(input),
 } satisfies CommandDefinition;

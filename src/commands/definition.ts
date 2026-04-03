@@ -31,6 +31,6 @@ export type CommandDefinition<TOptions = any> = {
   options?: CommandOption[];
   allowUnknownOptions?: boolean;
   allowExcessArguments?: boolean;
-  action?: (options: TOptions) => void;
+  action?: (options: TOptions, ...args: string[]) => void;
   subcommands?: CommandDefinition[];
 };

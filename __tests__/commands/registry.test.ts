@@ -6,12 +6,7 @@ import { Command } from 'commander';
 import registerCli from '@lib/cli';
 
 import commands from '@commands';
-
-vi.mock('@src/commands/init/impl.js', () => ({ runInit: vi.fn() }));
-vi.mock('@src/commands/rm/impl.js', () => ({ runRm: vi.fn() }));
-vi.mock('@src/commands/commit/cmds/install/impl.js', () => ({ runInstall: vi.fn() }));
-vi.mock('@src/commands/commit/cmds/validate/impl.js', () => ({ runValidate: vi.fn() }));
-vi.mock('@src/commands/commit/cmds/uninstall/impl.js', () => ({ runUninstall: vi.fn() }));
+import type { CommandDefinition } from '@definition';
 
 function createProgram(): Command {
   const program = new Command();
@@ -19,16 +14,44 @@ function createProgram(): Command {
   return program;
 }
 
+function collectDefinedCommandPaths(
+  definitions: CommandDefinition[],
+  prefix: string[] = [],
+): string[] {
+  return definitions.flatMap((definition) => {
+    const currentPath = [...prefix, definition.name];
+    const current = currentPath.join(' ');
+    const nested = definition.subcommands
+      ? collectDefinedCommandPaths(definition.subcommands, currentPath)
+      : [];
+    return [current, ...nested];
+  });
+}
+
+function collectRegisteredCommandPaths(
+  parent: Command,
+  prefix: string[] = [],
+): string[] {
+  return parent.commands.flatMap((command) => {
+    const currentPath = [...prefix, command.name()];
+    const current = currentPath.join(' ');
+    const nested = collectRegisteredCommandPaths(command, currentPath);
+    return [current, ...nested];
+  });
+}
+
 describe('CLI command registry', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('registers init, rm, and commit from the shared commands module', () => {
+  it('registers every command defined in the shared commands module', () => {
     const program = createProgram();
     registerCli(program, commands);
 
-    const names = program.commands.map((c) => c.name()).sort();
-    expect(names).toEqual(['commit', 'init', 'rm']);
+    const expectedPaths = collectDefinedCommandPaths(commands).sort();
+    const registeredPaths = collectRegisteredCommandPaths(program).sort();
+
+    expect(registeredPaths).toEqual(expectedPaths);
   });
 });

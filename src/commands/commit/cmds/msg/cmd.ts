@@ -1,12 +1,17 @@
 import type { CommandDefinition } from '@definition';
-import msgSubcommand from './cmds/msg/cmd.js';
+
+import installSubcommand from './cmds/install/cmd.js';
+import uninstallSubcommand from './cmds/uninstall/cmd.js';
+import validateSubcommand from './cmds/validate/cmd.js';
 
 export default {
-  name: 'commit',
+  name: 'msg',
   aliases: ['c'],
   description: 'Structured commit messages: `<type> (scope): msg`',
   summary: 'Validate commits and manage the commit-msg hook',
   subcommands: [
-    msgSubcommand,
+    installSubcommand,
+    uninstallSubcommand,
+    validateSubcommand
   ],
 } satisfies CommandDefinition;

@@ -67,9 +67,9 @@ describe('mergeConfig', () => {
     expect(merged.logger.level).toBe('info');
   });
 
-  it('merges commit.messageFormat', () => {
+  it('merges commit.message.format', () => {
     const merged = mergeConfig({
-      commit: { messageFormat: '%s' },
+      commit: { message: { format: '%s' } },
     });
     expect(merged.commit.message.format).toBe('%s');
   });
@@ -103,7 +103,7 @@ describe('loadFromFile', () => {
   });
 
   it('parses JSON and merges into default', async () => {
-    readFileMock.mockResolvedValue(JSON.stringify({ commit: { messageFormat: '%s' } }));
+    readFileMock.mockResolvedValue(JSON.stringify({ commit: { message: { format: '%s' } } }));
     const cfg = await loadFromFile();
     expect(cfg.commit.message.format).toBe('%s');
     expect(cfg.logger).toEqual(defaultConfig.logger);

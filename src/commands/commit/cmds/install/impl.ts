@@ -1,11 +1,11 @@
 import { execSync } from 'child_process';
-import { chmodSync, existsSync, realpathSync, writeFileSync } from 'fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 
 import { BshError } from '@lib/errors';
 import { logger } from '@lib/logger';
 
+import { consts } from '@consts';
 import type { InstallOptions } from './types.js';
-import { consts } from '../const.js';
 
 function gitHooksDir(): string {
   try {
@@ -13,40 +13,61 @@ function gitHooksDir(): string {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
-  } catch {
+  } catch (error) {
+    console.error(error);
     throw new BshError(404, 'Not a Git repository (or hooks path unavailable).');
   }
 }
 
-function resolveHookInvoker(): string {
-  const env = process.env.ENV?.trim();
-  if (env == 'local') {
-    return 'npm run cli --';
-  }
-  return 'npx @bshsolutions/git';
-}
-
-function hookScript(): string {
-  const invoker = resolveHookInvoker();
-  return `#!/bin/sh
-set -e
-${invoker} commit validate "$1"
+const messageFormatScript = `#!/bin/sh
+# BSH Git — commit message format validator
+npx @bshsolutions/git commit validate "$1"
 `;
-}
 
-export function runInstall(options: InstallOptions): void {
-  const hooksDir = gitHooksDir();
-  const hookPath = `${hooksDir}/${consts.commit.messageHook}`;
-
-  if (existsSync(hookPath) && !options.force) {
-    logger.error(
-      `${consts.commit.messageHook} hook already exists at ${hookPath}. Use --force to replace it.`,
-    );
+function canOverwriteHook(
+  path: string,
+  force: boolean,
+): boolean {
+  if (!existsSync(path)) return true;
+  if (force) return true;
+  try {
+    const content = readFileSync(path, 'utf8');
+    if (!content.includes(messageFormatScript)) return true;
+  } catch (e) {
+    const code =
+      e &&
+        typeof e === 'object' &&
+        'code' in e &&
+        typeof (e as { code: unknown }).code === 'string'
+        ? (e as { code: string }).code
+        : '';
+    logger.error(`Could not read ${path}${code ? ` (${code})` : ''}.`);
     process.exitCode = 1;
-    return;
+    return false;
   }
-
-  writeFileSync(hookPath, hookScript(), { encoding: 'utf8' });
-  chmodSync(hookPath, 0o755);
-  logger.info(`Installed ${consts.commit.messageHook} hook at ${hookPath}`);
+  logger.error(`${consts.commit.commitMsgHook} already exists at ${path}. Use --force to replace it.`);
+  process.exitCode = 1;
+  return false;
 }
+
+const writeHookFile = (path: string) => {
+  writeFileSync(path, messageFormatScript, { encoding: 'utf8' });
+  chmodSync(path, 0o755);
+}
+
+export default (options: InstallOptions) => {
+  const force = options.force === true;
+  const hooksDir = gitHooksDir();
+  const commitMsgPath = `${hooksDir}/${consts.commit.commitMsgHook}`;
+
+  if (
+    !canOverwriteHook(
+      commitMsgPath,
+      force,
+    )
+  ) return;
+
+  writeHookFile(commitMsgPath);
+
+  logger.info(`Installed ${commitMsgPath}`);
+};

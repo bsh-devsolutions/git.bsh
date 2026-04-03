@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Command } from 'commander';
 import registerCli from '@lib/cli';
-import type { CommandDefinition, SubCommandDefinition } from '@definition';
+import type { CommandDefinition } from '@definition';
 import { BshError } from '@lib/errors';
 
 function createProgram(): Command {
@@ -55,7 +55,7 @@ describe('registerCli', () => {
 
   it('registers subcommands under the parent and omits parent action', () => {
     const program = createProgram();
-    const install: SubCommandDefinition = {
+    const install: CommandDefinition = {
       name: 'install',
       description: 'Install hook',
       action: vi.fn(),

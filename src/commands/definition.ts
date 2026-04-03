@@ -16,7 +16,7 @@ export type PositionalArg = {
   defaultValue?: unknown;
 };
 
-export type AttachedCommandOptions = {
+export type CommandDefinition<TOptions = any> = {
   hidden?: boolean;
   isDefault?: boolean;
   name: string;
@@ -31,13 +31,6 @@ export type AttachedCommandOptions = {
   options?: CommandOption[];
   allowUnknownOptions?: boolean;
   allowExcessArguments?: boolean;
-};
-
-export type SubCommandDefinition<TOptions = any> = AttachedCommandOptions & {
-  action: (options: TOptions, ...positional: string[]) => void;
-};
-
-export type CommandDefinition<TOptions = any> = AttachedCommandOptions & {
   action?: (options: TOptions) => void;
-  subcommands?: SubCommandDefinition[];
+  subcommands?: CommandDefinition[];
 };

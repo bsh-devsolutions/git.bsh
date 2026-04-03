@@ -19,9 +19,9 @@ export function gitHooksDir(): string {
 }
 
 export const messageFormatScript = `#!/bin/sh
-  # BSH Git — commit message format validator
-  npx @bshsolutions/git commit validate "$1"
-  `;
+# BSH Git — commit message format validator
+npx @bshsolutions/git commit validate "$1"
+`;
 
 export function canOverwriteHook(
     path: string,

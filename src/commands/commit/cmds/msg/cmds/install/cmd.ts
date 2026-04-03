@@ -1,4 +1,4 @@
-import type { SubCommandDefinition } from '@definition';
+import type { CommandDefinition } from '@definition';
 
 import run from './impl.js';
 import type { InstallOptions } from './types.js';
@@ -15,4 +15,4 @@ export default {
     },
   ],
   action: (options) => run(options),
-} satisfies SubCommandDefinition<InstallOptions>;
+} satisfies CommandDefinition<InstallOptions>;

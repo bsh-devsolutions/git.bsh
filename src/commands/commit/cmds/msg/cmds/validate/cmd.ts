@@ -1,4 +1,4 @@
-import type { SubCommandDefinition } from '@definition';
+import type { CommandDefinition } from '@definition';
 
 import { runValidate } from './impl.js';
 
@@ -9,4 +9,4 @@ export default {
   action: (_options) => {
     runValidate();
   },
-} satisfies SubCommandDefinition;
+} satisfies CommandDefinition;

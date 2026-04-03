@@ -18,7 +18,10 @@ export async function errorHandlingMiddleware(
   try {
     await program.parseAsync(argv);
   } catch (err) {
-    if (err instanceof CommanderError && err.exitCode === 0) {
+    if (err instanceof CommanderError && (
+      err.exitCode === 0 ||
+      err.code === 'commander.help'
+    )) {
       process.exit(0);
       return;
     }

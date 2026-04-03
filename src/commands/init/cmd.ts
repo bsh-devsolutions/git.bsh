@@ -5,7 +5,7 @@ export default {
   name: 'init',
   description: 'Initialize the environment',
   summary: 'Initialize the environment',
-  action: (_options) => {
-    runInit();
+  action: async (_options) => {
+    await runInit();
   },
 } satisfies CommandDefinition;

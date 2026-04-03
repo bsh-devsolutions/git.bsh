@@ -5,7 +5,11 @@ import type { Config } from './type';
 
 export const defaultConfig: Config = {
   commit: {
-    messageFormat: '{type} {scope}: {message}',
+    message: {
+      format: '{type} ({scope}): {message}',
+      types: ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'],
+      scopes: [],
+    },
   },
   logger: {
     level: 'info',
@@ -20,7 +24,12 @@ export async function loadFromFile(): Promise<Config> {
   const path = resolve(process.cwd(), consts.configRelativePath);
   try {
     const text = await readFile(path, 'utf8');
-    return mergeConfig(JSON.parse(text) as unknown);
+    try {
+      return mergeConfig(JSON.parse(text) as unknown);
+    } catch (err) {
+      if (err instanceof SyntaxError) return structuredClone(defaultConfig);
+      throw err;
+    }
   } catch (err) {
     if (getNodeErrno(err) === 'ENOENT') return structuredClone(defaultConfig);
     throw err;

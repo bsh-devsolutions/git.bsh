@@ -85,7 +85,6 @@ function serializeErr(err: Error): Record<string, unknown> {
 function buildBaseOptions(): LoggerOptions {
   return {
     level: level(),
-    name: 'bsh-git',
     serializers: {
       err: serializeErr,
     },

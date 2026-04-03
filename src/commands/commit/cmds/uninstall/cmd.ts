@@ -1,6 +1,6 @@
 import type { SubCommandDefinition } from '@definition';
 
-import { runUninstall } from './impl.js';
+import run from './impl.js';
 import type { UninstallOptions } from './types.js';
 
 export default {
@@ -14,7 +14,5 @@ export default {
       defaultValue: false,
     },
   ],
-  action: (options) => {
-    runUninstall(options);
-  },
+  action: (options) => run(options),
 } satisfies SubCommandDefinition<UninstallOptions>;

@@ -35,6 +35,9 @@
       "@definition": [
         "src/commands/definition.ts",
       ],
+      "@consts": [
+        "src/commands/consts.ts",
+      ],
       "@config": [
         "src/config/index.ts",
       ],

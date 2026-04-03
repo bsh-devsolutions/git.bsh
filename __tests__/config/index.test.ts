@@ -18,7 +18,7 @@ describe('consts', () => {
 
 describe('defaultConfig', () => {
   it('has commit and logger sections', () => {
-    expect(defaultConfig.commit.messageFormat).toBeTruthy();
+    expect(defaultConfig.commit.message.format).toBeTruthy();
     expect(defaultConfig.logger.level).toBe('info');
     expect(defaultConfig.logger.file.enable).toBe(false);
     expect(defaultConfig.logger.file.path).toBe('logs/bsh-git.log');
@@ -71,7 +71,7 @@ describe('mergeConfig', () => {
     const merged = mergeConfig({
       commit: { messageFormat: '%s' },
     });
-    expect(merged.commit.messageFormat).toBe('%s');
+    expect(merged.commit.message.format).toBe('%s');
   });
 });
 
@@ -105,8 +105,14 @@ describe('loadFromFile', () => {
   it('parses JSON and merges into default', async () => {
     readFileMock.mockResolvedValue(JSON.stringify({ commit: { messageFormat: '%s' } }));
     const cfg = await loadFromFile();
-    expect(cfg.commit.messageFormat).toBe('%s');
+    expect(cfg.commit.message.format).toBe('%s');
     expect(cfg.logger).toEqual(defaultConfig.logger);
+  });
+
+  it('returns defaults when file contains invalid JSON', async () => {
+    readFileMock.mockResolvedValue('{');
+    const cfg = await loadFromFile();
+    expect(cfg).toEqual(defaultConfig);
   });
 
   it('rethrows non-ENOENT read errors', async () => {

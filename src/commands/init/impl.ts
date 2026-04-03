@@ -1,17 +1,24 @@
-import { defaultConfig } from '@src/config';
+import { createConfigFileIfNotExists } from '@config';
 import { logger } from '@lib/logger';
 
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { access } from 'fs/promises';
+import { resolve } from 'path';
+import { consts } from '@src/config/consts';
+import { getNodeErrno } from '@src/config/utils';
 
-const CONFIG_DIR = '.github';
-const CONFIG_FILE = 'bsh.json';
-const CONFIG_PATH = join(CONFIG_DIR, CONFIG_FILE);
-
-export function runInit(): void {
-  if (!existsSync(CONFIG_PATH)) {
-    mkdirSync(dirname(CONFIG_PATH), { recursive: true });
-    writeFileSync(CONFIG_PATH, JSON.stringify(defaultConfig, null, 2), { encoding: 'utf-8' });
-    logger.info('Config file created');
+async function configExists(): Promise<boolean> {
+  const configPath = resolve(process.cwd(), consts.configRelativePath);
+  try {
+    await access(configPath);
+    return true;
+  } catch (err) {
+    if (getNodeErrno(err) === 'ENOENT') return false;
+    throw err;
   }
+}
+
+export async function runInit(): Promise<void> {
+  const existed = await configExists();
+  await createConfigFileIfNotExists();
+  if (!existed) logger.info('Config file created');
 }

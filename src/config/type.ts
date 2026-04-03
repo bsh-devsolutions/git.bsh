@@ -7,6 +7,10 @@ export type Config = {
         }
     },
     commit: {
-        messageFormat: string
+        message: {
+            format: string;
+            types: string[];
+            scopes: string[];
+        }
     }
 }

@@ -12,53 +12,48 @@ vi.mock('@lib/logger', () => ({
   },
 }));
 
-const { existsSync, writeFileSync, mkdirSync } = vi.hoisted(() => ({
-  existsSync: vi.fn(),
-  writeFileSync: vi.fn(),
-  mkdirSync: vi.fn(),
+const { access } = vi.hoisted(() => ({
+  access: vi.fn(),
 }));
 
-vi.mock('fs', () => ({
-  existsSync,
-  writeFileSync,
-  mkdirSync,
+vi.mock('fs/promises', () => ({
+  access,
 }));
 
 vi.mock('@src/config', () => ({
-  defaultConfig: { demo: true },
+  createConfigFileIfNotExists: vi.fn(),
 }));
 
+const { createConfigFileIfNotExists } = await import('@src/config');
 const { logger } = await import('@lib/logger');
 import { runInit } from '@src/commands/init/impl';
 
 const loggerMock = vi.mocked(logger);
+const accessMock = vi.mocked(access);
+const createConfigFileIfNotExistsMock = vi.mocked(createConfigFileIfNotExists);
 
 describe('runInit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    accessMock.mockResolvedValue(undefined);
+    createConfigFileIfNotExistsMock.mockResolvedValue(undefined as never);
   });
 
-  it('creates config dir and file when config is missing', () => {
-    existsSync.mockReturnValue(false);
+  it('creates config when missing and logs creation', async () => {
+    accessMock.mockRejectedValueOnce(Object.assign(new Error('missing'), { code: 'ENOENT' }));
 
-    runInit();
+    await runInit();
 
-    expect(mkdirSync).toHaveBeenCalledWith('.github', { recursive: true });
-    expect(writeFileSync).toHaveBeenCalledWith(
-      '.github/bsh.json',
-      JSON.stringify({ demo: true }, null, 2),
-      { encoding: 'utf-8' },
-    );
+    expect(createConfigFileIfNotExistsMock).toHaveBeenCalledTimes(1);
     expect(loggerMock.info).toHaveBeenCalledWith('Config file created');
   });
 
-  it('does nothing when config already exists', () => {
-    existsSync.mockReturnValue(true);
+  it('does not log when config already exists', async () => {
+    accessMock.mockResolvedValueOnce(undefined);
 
-    runInit();
+    await runInit();
 
-    expect(mkdirSync).not.toHaveBeenCalled();
-    expect(writeFileSync).not.toHaveBeenCalled();
+    expect(createConfigFileIfNotExistsMock).toHaveBeenCalledTimes(1);
     expect(loggerMock.info).not.toHaveBeenCalled();
   });
 });

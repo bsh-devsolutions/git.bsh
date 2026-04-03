@@ -10,16 +10,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && npm run commands:tree",
     "watch": "tsup --watch",
+    "commands:tree": "tsx scripts/commands-tree.ts",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist",
-    "test": "vitest run",
+    "test": "vitest run && npm run commands:tree",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "cli": "ENV=local tsx src/cli.ts",
-    "cli:debug": "LOG_LEVEL=debug ENV=local tsx src/cli.ts",
-    "cli:build": "npm run build && node dist/cli.js"
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [
     "bsh",

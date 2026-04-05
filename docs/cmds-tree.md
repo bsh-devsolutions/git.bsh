@@ -8,5 +8,6 @@ Registered commands tree
    └─ msg
       ├─ install
       ├─ uninstall
-      └─ validate
+      ├─ validate
+      └─ prompt
 ```

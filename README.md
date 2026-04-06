@@ -1,8 +1,6 @@
 # @bshsolutions/git
 
-> A friendly CLI for common Git workflows.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+A friendly CLI for common Git workflows.
 
 ## Usage
 
@@ -12,7 +10,7 @@ npx @bshsolutions/git --help
 
 ## Documentation
 
-Full guides live in the repo: [docs](docs/README.md) (setup, commands, commit flow).
+Full guides live in the repo: [docs](docs/README.md)
 
 ## Links
 
@@ -22,4 +20,4 @@ Full guides live in the repo: [docs](docs/README.md) (setup, commands, commit fl
 
 ## License
 
-MIT
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)

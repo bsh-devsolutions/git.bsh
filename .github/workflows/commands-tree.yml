@@ -3,9 +3,7 @@ name: Commands tree docs
 on:
   push:
     branches:
-      - develop
       - main
-      - master
     paths:
       - 'src/commands/**'
       - 'scripts/commands-tree.ts'

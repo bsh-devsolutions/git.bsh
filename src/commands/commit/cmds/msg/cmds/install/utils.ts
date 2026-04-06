@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'fs';
-import { createInterface } from 'node:readline';
+import prompts from 'prompts';
 
 import { BshError } from '@lib/errors';
 import { logger } from '@src/lib/logger';
@@ -66,47 +66,55 @@ function fromCsv(value: string): string[] {
         .filter(Boolean);
 }
 
+const cancelPrompts = {
+    onCancel: (): never => {
+        process.exit(130);
+    },
+};
+
 export async function promptMessageConfig(defaults: MessageConfig): Promise<MessageConfig> {
     if (!process.stdin.isTTY || !process.stdout.isTTY) return defaults;
 
     logger.info('Configure commit message defaults. Press Enter to keep current values.');
 
-    const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    const askWithDefault = async (question: string, defaultValue: string): Promise<string> => {
-        const answer = await new Promise<string>((resolve) => {
-            rl.question(question, resolve);
-        });
-        const trimmed = answer.trim();
-        return trimmed === '' ? defaultValue : trimmed;
-    };
+    const formatResponse = await prompts(
+        {
+            type: 'text',
+            name: 'format',
+            message: 'Commit format',
+            initial: defaults.format,
+        },
+        cancelPrompts,
+    );
 
-    let format = defaults.format;
-    let typesInput = toCsv(defaults.types);
-    let scopesInput = toCsv(defaults.scopes);
+    const typesResponse = await prompts(
+        {
+            type: 'text',
+            name: 'types',
+            message: 'Commit types (comma-separated)',
+            initial: toCsv(defaults.types),
+        },
+        cancelPrompts,
+    );
 
-    try {
-        format = await askWithDefault(
-            `Commit format "${defaults.format}": `,
-            defaults.format,
-        );
-        typesInput = await askWithDefault(
-            `Commit types (comma-separated) [${toCsv(defaults.types)}]: `,
-            toCsv(defaults.types),
-        );
-        scopesInput = await askWithDefault(
-            `Commit scopes (comma-separated) [${toCsv(defaults.scopes)}]: `,
-            toCsv(defaults.scopes),
-        );
-    } finally {
-        rl.close();
-    }
+    const scopesResponse = await prompts(
+        {
+            type: 'text',
+            name: 'scopes',
+            message: 'Commit scopes (comma-separated)',
+            initial: toCsv(defaults.scopes),
+        },
+        cancelPrompts,
+    );
+
+    const format =
+        String(formatResponse.format ?? '').trim() || defaults.format;
+    const typesStr = String(typesResponse.types ?? '').trim();
+    const scopesStr = String(scopesResponse.scopes ?? '').trim();
 
     return {
         format,
-        types: fromCsv(typesInput),
-        scopes: fromCsv(scopesInput),
+        types: typesStr === '' ? defaults.types : fromCsv(typesStr),
+        scopes: scopesStr === '' ? defaults.scopes : fromCsv(scopesStr),
     };
 }

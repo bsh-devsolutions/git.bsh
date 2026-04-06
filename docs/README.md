@@ -1,17 +1,11 @@
 # Documentation
 
-Reference for the **BSH Git CLI** (`git` binary, package `@bshsolutions/git`).
+Reference for the **BSH Git CLI**. Run it with **`npx @bshsolutions/git`**.
 
----
-
-## Doc tree
-
-Open a page:
-- `├──` [**Setup**](setup.md) — install, `npm run build`, `npx`, `LOG_LEVEL`, `npm link`
-- `├──` [**Commands**](commands.md) — `--help`, `init`, `commit` overview
-- `└──` [**Commit**](commit.md) — `install` / `uninstall` / `validate`, hook behavior, message shape
-
----
+## Doc's Pages
+- [**Setup**](./setup.md) (for devs)
+- [**Commands**](./commands.md)
+- [**Commands Tree**](./cmds-tree.md)
 
 ## Quick command
 
@@ -19,6 +13,3 @@ Open a page:
 npx @bshsolutions/git --help
 ```
 
----
-
-* [← Repository README](../README.md)*

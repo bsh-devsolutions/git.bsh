@@ -1,41 +1,25 @@
-# BSH Git CLI
+# @bshsolutions/git
+
+> A friendly CLI for common Git workflows.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![GitHub](https://img.shields.io/badge/repository-git.bsh-181717?logo=github)](https://github.com/bsh-devsolutions/git.bsh)
 
-A small **Node.js CLI** for everyday Git workflows: quick **`hello`** checks and a **`commit`** command that can install a **`commit-msg`** hook so messages stay consistent.
+## Usage
 
-| | |
-| --- | --- |
-| **Binary** | `git` |
-| **Package** | [`@bshsolutions/git`](https://www.npmjs.com/package/@bshsolutions/git) |
-
----
-
-## Features
-
-- **Smoke-test friendly** — `hello` verifies the CLI runs where you need it.
-- **Structured commits** — validate messages and optionally enforce them via a Git hook.
-- **`npx`-first** — run without a global install, or `npm link` for local development.
-
----
+```sh
+npx @bshsolutions/git --help
+```
 
 ## Documentation
 
-docs/
-- `├──` [**Documentation home**](docs/README.md)
-- `├──` [**Setup**](docs/setup.md)
-- `├──` [**Commands**](docs/commands.md)
-- `└──` [**Commit**](docs/commit.md)
+Full guides live in the repo: [docs](docs/README.md) (setup, commands, commit flow).
 
----
+## Links
 
-## Quick start
+- [npm](https://www.npmjs.com/package/@bshsolutions/git)
+- [Repository](https://github.com/bsh-devsolutions/git.bsh)
+- [Issues](https://github.com/bsh-devsolutions/git.bsh/issues)
 
-```sh
-npm install
-npm run build
-npx @bshsolutions/git hello --name you
-```
+## License
 
-For local development, linking into other repos, and hook setup, start with [**Setup**](docs/setup.md).
+MIT
